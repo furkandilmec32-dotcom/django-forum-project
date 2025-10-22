@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Create New Thread - {{ forum.title }}{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'forum_list' %}">Forums</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'forum_detail' forum.pk %}">{{ forum.title }}</a></li>
+                <li class="breadcrumb-item active">New Thread</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- Form -->
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-plus-circle"></i> Create New Thread in {{ forum.title }}
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Title Field -->
+                    <div class="mb-3">
+                        <label for="id_title" class="form-label">
+                            <strong>Thread Title</strong> <span class="text-danger">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            name="title" 
+                            class="form-control {% if form.title.errors %}is-invalid{% endif %}" 
+                            id="id_title" 
+                            placeholder="Enter a descriptive title for your thread"
+                            maxlength="200"
+                            required
+                            value="{{ form.title.value|default:'' }}"
+                        >
+                        {% if form.title.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.title.errors }}
+                            </div>
+                        {% endif %}
+                        <small class="text-muted">Choose a clear, descriptive title (max 200 characters)</small>
+                    </div>
+                    
+                    <!-- Body Field -->
+                    <div class="mb-3">
+                        <label for="id_body" class="form-label">
+                            <strong>Content</strong> <span class="text-danger">*</span>
+                        </label>
+                        <textarea 
+                            name="body" 
+                            class="form-control {% if form.body.errors %}is-invalid{% endif %}" 
+                            id="id_body" 
+                            rows="10"
+                            placeholder="Write your thread content here..."
+                            required
+                        >{{ form.body.value|default:'' }}</textarea>
+                        {% if form.body.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.body.errors }}
+                            </div>
+                        {% endif %}
+                        <small class="text-muted">Be clear and provide details</small>
+                    </div>
+                    
+                    <!-- Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'forum_detail' forum.pk %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send"></i> Create Thread
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Guidelines -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6 class="card-title"><i class="bi bi-info-circle"></i> Posting Guidelines</h6>
+                <ul class="small mb-0">
+                    <li>Be respectful and courteous to other members</li>
+                    <li>Stay on topic and relevant to the forum category</li>
+                    <li>Use clear and descriptive titles</li>
+                    <li>Search before posting to avoid duplicates</li>
+                    <li>Format your posts for easy reading</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

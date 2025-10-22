@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}All Forums - Forum{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">All Forums</h2>
+        
+        {% regroup forums by category as category_list %}
+        
+        {% for category in category_list %}
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">{{ category.grouper.name }}</h4>
+                <p class="mb-0"><small>{{ category.grouper.description }}</small></p>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for forum in category.list %}
+                <a href="{% url 'forum_detail' forum.pk %}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">
+                                <i class="bi bi-chat-left-text text-primary"></i>
+                                {{ forum.title }}
+                            </h5>
+                            <p class="mb-1 text-muted">{{ forum.description }}</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-secondary rounded-pill">
+                                {{ forum.thread_count }} thread{{ forum.thread_count|pluralize }}
+                            </span>
+                            {% with last_thread=forum.last_thread %}
+                                {% if last_thread %}
+                                    <br>
+                                    <small class="text-muted">
+                                        Last: <strong>{{ last_thread.title|truncatewords:5 }}</strong>
+                                        <br>by {{ last_thread.author.username }}, {{ last_thread.created_at|timesince }} ago
+                                    </small>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

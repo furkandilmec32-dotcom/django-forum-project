@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ forum.title }} - Forum{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'forum_list' %}">Forums</a></li>
+                <li class="breadcrumb-item active">{{ forum.title }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2>{{ forum.title }}</h2>
+        <p class="text-muted">{{ forum.description }}</p>
+    </div>
+     <div class="col-md-4 text-end">
+        {% if user.is_authenticated %}
+            <a href="{% url 'thread_create' forum.pk %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> New Thread
+            </a>
+        {% else %}
+            <a href="#" class="btn btn-secondary" title="Login to create threads">
+                <i class="bi bi-lock"></i> New Thread
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Search Bar -->
+<div class="row mb-4">
+    <div class="col-12">
+        <form method="get" class="d-flex">
+            <input type="text" name="q" class="form-control me-2" placeholder="Search threads..." value="{{ search_query }}">
+            <button type="submit" class="btn btn-outline-primary">
+                <i class="bi bi-search"></i> Search
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Threads List -->
+<div class="row">
+    <div class="col-12">
+        {% if threads %}
+            <div class="card">
+                <div class="list-group list-group-flush">
+                    {% for thread in threads %}
+                    <a href="{% url 'thread_detail' thread.pk %}" class="list-group-item list-group-item-action"></a>
+                        <div class="d-flex w-100 justify-content-between">
+                            <div>
+                                <h5 class="mb-1">
+                                    {% if thread.is_closed %}
+                                        <i class="bi bi-lock text-danger"></i>
+                                    {% else %}
+                                        <i class="bi bi-chat-dots text-success"></i>
+                                    {% endif %}
+                                    {{ thread.title }}
+                                </h5>
+                                <p class="mb-1 text-muted">{{ thread.body|truncatewords:20 }}</p>
+                                <small class="text-muted">
+                                    Started by <strong>{{ thread.author.username }}</strong> 
+                                    {{ thread.created_at|timesince }} ago
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-info rounded-pill">
+                                    {{ thread.reply_count }} repl{{ thread.reply_count|pluralize:"y,ies" }}
+                                </span>
+                                {% with last_reply=thread.last_reply %}
+                                    {% if last_reply %}
+                                        <br>
+                                        <small class="text-muted">
+                                            Last by {{ last_reply.author.username }}
+                                            <br>{{ last_reply.created_at|timesince }} ago
+                                        </small>
+                                    {% endif %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Previous</a>
+                        </li>
+                    {% endif %}
+                    
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+                    
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}">Last</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            
+        {% else %}
+            <div class="alert alert-info">
+                {% if search_query %}
+                    No threads found matching "{{ search_query }}".
+                {% else %}
+                    No threads yet. Be the first to start a discussion!
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
